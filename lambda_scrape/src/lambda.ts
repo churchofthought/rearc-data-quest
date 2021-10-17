@@ -3,7 +3,7 @@ import {
 	APIGatewayProxyResult
 } from "aws-lambda"
 
-import S3 from './s3'
+import S3 from './s3.js'
 
 import {promisify} from 'util'
 import { exec as execCb} from 'child_process'

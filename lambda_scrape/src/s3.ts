@@ -3,7 +3,7 @@ import {Readable} from "stream"
 import {basename} from 'path'
 
 import { fetch } from "undici"
-import { scrapeDirectoryListing } from "./scrape"
+import { scrapeDirectoryListing } from "./scrape.js"
 
 export default (region: string, bucket: string) => {
 	const s3Client = new S3Client({region})
@@ -75,7 +75,7 @@ export default (region: string, bucket: string) => {
 		}
 	}
 
-	const getS3FileNames = async () => {
+	const getS3FileNames = async () : Promise<string[]> => {
 		const command = new ListObjectsV2Command({Bucket: bucket})
 		const s3FileNames : string[] = []
 		for (;;)
@@ -129,6 +129,7 @@ export default (region: string, bucket: string) => {
 			if (modified)
 				modifiedFiles.push(file)
 		}
+		return modifiedFiles
 	}
 
 	const copyHTTPResourceToS3 = async (url: string, key: string) : Promise<boolean> => {

@@ -72,15 +72,25 @@ resource "aws_iam_role_policy" "lambda_policy" {
   })
 }
 
-data "archive_file" "lambda_zip_dir" {
+resource "null_resource" "lambda_scrape_dependencies" {
+  provisioner "local-exec" {
+    command = "cd lambda_scrape/src && npm run build"
+  }
+}
+
+data "archive_file" "lambda_scrape_zip_dir" {
   type        = "zip"
-  output_path = "tmp/lambda_zip_dir.zip"
-	source_dir  = "dist"
+  output_path = "tmp/lambda_scrape_zip_dir.zip"
+	source_dir  = "lambda_scrape/dist"
+
+  depends_on = [
+    null_resource.lambda_scrape_dependencies
+  ]
 }
 
 resource "aws_lambda_function" "lambda_scrape" {
-  filename         = "${data.archive_file.lambda_zip_dir.output_path}"
-  source_code_hash = "${data.archive_file.lambda_zip_dir.output_base64sha256}"
+  filename         = "${data.archive_file.lambda_scrape_zip_dir.output_path}"
+  source_code_hash = "${data.archive_file.lambda_scrape_zip_dir.output_base64sha256}"
   function_name    = "lambda_scrape"
   handler          = "lambda.lambdaHandler"
   runtime          = "nodejs14.x"
@@ -90,6 +100,8 @@ resource "aws_lambda_function" "lambda_scrape" {
     variables = {
       S3_REGION = aws_s3_bucket.bucket.region
       S3_BUCKET = aws_s3_bucket.bucket.bucket
+      NODE_OPTIONS = "--enable-source-maps"
     }
   }
 }
+
