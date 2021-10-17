@@ -3,7 +3,7 @@ import {Readable} from "stream"
 import {basename} from 'path'
 
 import { fetch } from "undici"
-import { scrapeDirectoryListing } from "./scrape.js"
+import { scrapeDirectoryListing } from "./scrape"
 
 export default (region: string, bucket: string) => {
 	const s3Client = new S3Client({region})

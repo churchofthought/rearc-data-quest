@@ -31,5 +31,21 @@ Part 1)
 
 	Luckily, this government server still handles If-Modified-Since properly, so 1/2 of our caching mechanisms suffice.
 
+	[Gotchas]
+		TypeScript's official compiler (tsc) renames all ts files to js
+		https://github.com/microsoft/TypeScript/issues/40878
+		https://github.com/microsoft/TypeScript/pull/44501#ref-issue-713122066
+		(^ mentioned as recent as 2 days ago)
+
+		This is a problem if we import from './file' instead of './file.js'
+		Though it is inelegant, we have few local imports, so we opted to use the './file.js' pathing
+
+		In larger projects, to get around this inelegance and refusal of TypeScript devs to improve tsc behavior, we can use Webpack, Rollup, Browserify, etc instead of TSC directly. 
+		Or we can add an additional build step that renames the compiled file extensions.
+		
+
+	
+
+
 	
 # rearc-data-quest

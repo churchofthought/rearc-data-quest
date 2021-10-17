@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Do. Or do not. There is no fail.",
   "main": "lambda.js",
-  "type": "module",
   "scripts": {
     "build": "rm -rf dist && tsc && cp package.json dist/ && cp package-lock.json dist/ && cd dist && npm ci --production",
     "start": "ts-node src/lambda.ts",

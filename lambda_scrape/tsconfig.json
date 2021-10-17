@@ -1,10 +1,11 @@
 {
 	"compilerOptions": {
 		"target": "ES2021",
-		"moduleResolution": "Node",
+		"module": "CommonJS",
 		"strict": true,
 		"sourceMap": true,
 		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
 		"outDir": "./dist"
 	},
 	"include": [

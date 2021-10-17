@@ -100,7 +100,7 @@ resource "aws_lambda_function" "lambda_scrape" {
     variables = {
       S3_REGION = aws_s3_bucket.bucket.region
       S3_BUCKET = aws_s3_bucket.bucket.bucket
-      NODE_OPTIONS = "--enable-source-maps"
+      NODE_OPTIONS = "--enable-source-maps --experimental-specifier-resolution=node"
     }
   }
 }
