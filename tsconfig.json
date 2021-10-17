@@ -1,0 +1,13 @@
+{
+	"compilerOptions": {
+		"target": "ES2021",
+		"moduleResolution": "Node",
+		"strict": true,
+		"sourceMap": true,
+		"allowSyntheticDefaultImports": true,
+		"outDir": "./dist"
+	},
+	"include": [
+		"src"
+	]
+}
