@@ -25,7 +25,7 @@ resource "aws_s3_bucket_policy" "bucket" {
         Effect    = "Allow"
         Principal = "*"
         Sid       = ""
-        Resource  = [
+        Resource = [
           aws_s3_bucket.bucket.arn,
           "${aws_s3_bucket.bucket.arn}/*"
         ]
@@ -47,7 +47,7 @@ resource "aws_iam_role" "lambda_role" {
         Principal = {
           Service = "lambda.amazonaws.com"
         }
-      },
+      }
     ]
   })
 }
@@ -60,13 +60,23 @@ resource "aws_iam_role_policy" "lambda_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action   = "s3:*"
-        Effect   = "Allow"
-        Sid      = ""
+        Action = "s3:*"
+        Effect = "Allow"
+        Sid    = ""
         Resource = [
           aws_s3_bucket.bucket.arn,
           "${aws_s3_bucket.bucket.arn}/*"
         ]
+      },
+      {
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Sid      = ""
+        Effect   = "Allow"
+        Resource = "arn:aws:logs:*:*:*"
       }
     ]
   })
@@ -74,7 +84,7 @@ resource "aws_iam_role_policy" "lambda_policy" {
 
 resource "null_resource" "lambda_scrape_dependencies" {
   triggers = {
-    dir_sha1 = sha1(join("", [for f in fileset("src", "*"): filesha1(f)]))
+    dir_sha1 = sha1(join("", [for f in fileset("lambda_scrape/src/", "**") : filesha1("lambda_scrape/src/${f}")]))
   }
   provisioner "local-exec" {
     command = "cd lambda_scrape/src && npm run build"
@@ -84,7 +94,7 @@ resource "null_resource" "lambda_scrape_dependencies" {
 data "archive_file" "lambda_scrape_zip_dir" {
   type        = "zip"
   output_path = "tmp/lambda_scrape_zip_dir.zip"
-	source_dir  = "lambda_scrape/dist"
+  source_dir  = "lambda_scrape/dist"
 
   depends_on = [
     null_resource.lambda_scrape_dependencies
@@ -92,8 +102,8 @@ data "archive_file" "lambda_scrape_zip_dir" {
 }
 
 resource "aws_lambda_function" "lambda_scrape" {
-  filename         = "${data.archive_file.lambda_scrape_zip_dir.output_path}"
-  source_code_hash = "${data.archive_file.lambda_scrape_zip_dir.output_base64sha256}"
+  filename         = data.archive_file.lambda_scrape_zip_dir.output_path
+  source_code_hash = data.archive_file.lambda_scrape_zip_dir.output_base64sha256
   function_name    = "lambda_scrape"
   handler          = "lambda.lambdaHandler"
   runtime          = "nodejs14.x"
@@ -102,8 +112,8 @@ resource "aws_lambda_function" "lambda_scrape" {
 
   environment {
     variables = {
-      S3_REGION = aws_s3_bucket.bucket.region
-      S3_BUCKET = aws_s3_bucket.bucket.bucket
+      S3_REGION    = aws_s3_bucket.bucket.region
+      S3_BUCKET    = aws_s3_bucket.bucket.bucket
       NODE_OPTIONS = "--enable-source-maps --experimental-specifier-resolution=node"
     }
   }

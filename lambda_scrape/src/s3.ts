@@ -6,7 +6,6 @@ import fetch from "node-fetch-commonjs"
 import { scrapeDirectoryListing } from "./scrape"
 
 export default (region: string, bucket: string) => {
-	const s3Client = new S3Client({region})
 	const streamResponseToS3 = async (file: string, response: any /*Response*/) : Promise<boolean> => {
 		const {body, status, headers} = response
 			// we already have this file
@@ -46,6 +45,7 @@ export default (region: string, bucket: string) => {
 	}
 
 	const s3PutObject =  async (key: string, body: Readable | Buffer, contentLength: number, metadata: Record<string, string>) => {
+		const s3Client = new S3Client({region})
 		console.debug(
 			`putting object onto s3, key ${key}, len: ${contentLength}, metadata `, metadata
 		)
@@ -55,6 +55,7 @@ export default (region: string, bucket: string) => {
 	}
 
 	const s3MetaData = async (fileKey: string) => {
+		const s3Client = new S3Client({region})
 		const command = new HeadObjectCommand({Bucket: bucket, Key: fileKey})
 		const response = await s3Client.send(command)
 		const metadata = response.Metadata
@@ -63,6 +64,7 @@ export default (region: string, bucket: string) => {
 	}
 
 	const s3Delete = async (keys: string[]) => {
+		const s3Client = new S3Client({region})
 		console.debug(`deleting s3 objects: `, keys)
 		const command = new DeleteObjectsCommand({Bucket: bucket, Delete: undefined})
 		while (keys.length)
@@ -76,6 +78,7 @@ export default (region: string, bucket: string) => {
 	}
 
 	const getS3FileNames = async () : Promise<string[]> => {
+		const s3Client = new S3Client({region})
 		const command = new ListObjectsV2Command({Bucket: bucket})
 		const s3FileNames : string[] = []
 		for (;;)

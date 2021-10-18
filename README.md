@@ -44,6 +44,27 @@ Part 1)
 		We'd need to use Docker if we wanted to use a custom Node build.
 		I forked undici and used a polyfill of AbortController and ReadableStream to allow for use on Node v14
 		https://github.com/churchofthought/undici/
+		This failed so I ended up using node-fetch, but this package doesn't work with CommonJS,
+		so I used a CJS stub someone else created
+
+		AWS SDK v3 is very poorly documented and has deranged errors when S3Client is reused.
+		Errors with no message or code with 400 status.
+		This is fixed when a new S3Client is used for each individual request.
+		A memory hog but the only way to fix the issue.
+
+	[TODO Improvements]
+		Unit & Integration Tests. Written more as isolated pure functions for testability
+		Request multiplexing, so we aren't just waiting on 1 request in isolation
+			This speed up our entire end-to-end process.
+			Promise.all is naive and dangerous, a parallelMap or parallelDo with a concurrency limit (n=10 for instance) is safer
+			ie. https://gist.github.com/churchofthought/b1a937929de44afb322ab850b4a3f169
+			( some npm modules do exist for this but are for more complex than they need to be )
+		HTTP/2 supported library to allow for native pipelining of requests and responses
+		https://en.wikipedia.org/wiki/HTTP/2
+
+
+
+
 
 
 
