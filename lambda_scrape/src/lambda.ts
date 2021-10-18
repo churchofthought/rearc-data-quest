@@ -39,7 +39,7 @@ export const lambdaHandler = async (
 	return {
 		statusCode: 200,
 		body: `
-			modified files: ${s3ModifiedFiles.join('')}
+			modified files: ${s3ModifiedFiles}
 			modified ${DATA_USA_S3_KEY}: ${dataUSAModified}
 			analysis rerendered: ${rerenderAnalysis}
 		`

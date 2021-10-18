@@ -32,17 +32,21 @@ Part 1)
 	Luckily, this government server still handles If-Modified-Since properly, so 1/2 of our caching mechanisms suffice.
 
 	[Gotchas]
-		TypeScript's official compiler (tsc) renames all ts files to js
-		https://github.com/microsoft/TypeScript/issues/40878
-		https://github.com/microsoft/TypeScript/pull/44501#ref-issue-713122066
-		(^ mentioned as recent as 2 days ago)
-
-		This is a problem if we import from './file' instead of './file.js'
-		Though it is inelegant, we have few local imports, so we opted to use the './file.js' pathing
-
-		In larger projects, to get around this inelegance and refusal of TypeScript devs to improve tsc behavior, we can use Webpack, Rollup, Browserify, etc instead of TSC directly. 
-		Or we can add an additional build step that renames the compiled file extensions.
+		Lambda only supports CommonJS entry point
+		We have to configure TypeScript via tsconfig.json with these settings because of that:
+			"module": "CommonJS",
+			"allowSyntheticDefaultImports": true,
+			"esModuleInterop": true,
 		
+		undici has incorporated undici-fetch, but only for Node >= v16.
+		https://github.com/nodejs/undici/blob/727ba62fa05b97b5cfd380b92cf94f7043de8d05/index.js#L91
+		AWS only supports Node v14.x out of the box.
+		We'd need to use Docker if we wanted to use a custom Node build.
+		I forked undici and used a polyfill of AbortController and ReadableStream to allow for use on Node v14
+		https://github.com/churchofthought/undici/
+
+
+
 
 	
 

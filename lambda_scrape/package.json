@@ -31,6 +31,6 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.37.0",
-    "undici": "^4.7.1"
+    "undici": "git+https://github.com/churchofthought/undici.git"
   }
 }

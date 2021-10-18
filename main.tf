@@ -95,6 +95,7 @@ resource "aws_lambda_function" "lambda_scrape" {
   handler          = "lambda.lambdaHandler"
   runtime          = "nodejs14.x"
   role             = aws_iam_role.lambda_role.arn
+  timeout          = 900
 
   environment {
     variables = {
