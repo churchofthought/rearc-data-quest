@@ -77,6 +77,15 @@ resource "aws_iam_role_policy" "lambda_policy" {
         Sid      = ""
         Effect   = "Allow"
         Resource = "arn:aws:logs:*:*:*"
+      },
+      {
+        Action = [
+          "lambda:InvokeFunction",
+          "lambda:InvokeAsync",
+        ]
+        Sid      = ""
+        Effect   = "Allow"
+        Resource = "arn:aws:lambda:*"
       }
     ]
   })
@@ -105,8 +114,34 @@ resource "aws_lambda_function" "lambda_scrape" {
   filename         = data.archive_file.lambda_scrape_zip_dir.output_path
   source_code_hash = data.archive_file.lambda_scrape_zip_dir.output_base64sha256
   function_name    = "lambda_scrape"
-  handler          = "lambda.lambdaHandler"
+  handler          = "index.lambdaHandler"
   runtime          = "nodejs14.x"
+  role             = aws_iam_role.lambda_role.arn
+  timeout          = 900
+
+  environment {
+    variables = {
+      S3_REGION      = aws_s3_bucket.bucket.region
+      S3_BUCKET      = aws_s3_bucket.bucket.bucket
+      LAMBDA_ANALYZE = aws_lambda_function.lambda_analyze.function_name
+      NODE_OPTIONS = "--enable-source-maps --experimental-specifier-resolution=node"
+    }
+  }
+}
+
+
+data "archive_file" "lambda_analyze_zip_dir" {
+  type        = "zip"
+  output_path = "tmp/lambda_analyze_zip_dir.zip"
+  source_dir  = "lambda_analyze"
+}
+
+resource "aws_lambda_function" "lambda_analyze" {
+  filename         = data.archive_file.lambda_scrape_zip_dir.output_path
+  source_code_hash = data.archive_file.lambda_scrape_zip_dir.output_base64sha256
+  function_name    = "lambda_analyze"
+  handler          = "main.lambda_handler"
+  runtime          = "python3.9"
   role             = aws_iam_role.lambda_role.arn
   timeout          = 900
 
@@ -114,13 +149,6 @@ resource "aws_lambda_function" "lambda_scrape" {
     variables = {
       S3_REGION    = aws_s3_bucket.bucket.region
       S3_BUCKET    = aws_s3_bucket.bucket.bucket
-      NODE_OPTIONS = "--enable-source-maps --experimental-specifier-resolution=node"
     }
   }
-}
-
-
-
-resource "aws_sqs_queue" "lambda_analysis_queue" {
-  name                  = "lambda-analysis-queue"
 }
