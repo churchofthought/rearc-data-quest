@@ -144,7 +144,6 @@ resource "aws_lambda_function" "lambda_analyze" {
   runtime          = "python3.9"
   role             = aws_iam_role.lambda_role.arn
   timeout          = 900
-
   environment {
     variables = {
       S3_REGION    = aws_s3_bucket.bucket.region

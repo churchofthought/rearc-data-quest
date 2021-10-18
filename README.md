@@ -65,8 +65,27 @@ Part 1)
 		HTTP/2 supported library to allow for native pipelining of requests and responses
 		https://en.wikipedia.org/wiki/HTTP/2
 
+Part 2)
+	This part was relatively easy to do using the HTTP and S3 methods written in Part 1
+	Because we want this Part 2 API JSON file to not be deleted by the S3 Sync in Part 1, we added an ignoreFiles parameter to Part 1's sync stage.
+	
+	[Gotchas]
+		Part 1 might have a file with the same name as the key we store the JSON for API call of Part 2.
+		This is highly unlikely but still worth mentioning. We can be resilient to it by using a sub-folder.
+	
+Part 3)
+	s3fs is used to read the s3 files streaming-wise with panda
+	Python & Pandas DataFrames were used for ease of use.
+	If the data scale were larger, we might use a different technology such as Spark.
+	
+	The ipynb notebook shows all the queries done.
+	The queries were done in a way that is easy to understand.
 
-
+Part 4)
+	Many python dependencies like Pandas are compiled for the platform specifically.
+	I wanted to render both an ipynb and HTML document every time the two files used for analysis changed.
+	I used Docker to create the AWS Python 3.9 environment so I could install all the dependencies necessary to re-execute the ipynb notebook, render it to HTML, and also interact with s3.
+	These dependencies include: papermill ipython jupyter boto3 s3fs
 
 
 
