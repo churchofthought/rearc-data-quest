@@ -85,7 +85,7 @@ resource "aws_iam_role_policy" "lambda_policy" {
         ]
         Sid      = ""
         Effect   = "Allow"
-        Resource = "arn:aws:lambda:*"
+        Resource = aws_lambda_function.lambda_analyze.arn
       }
     ]
   })
@@ -123,7 +123,7 @@ resource "aws_lambda_function" "lambda_scrape" {
     variables = {
       S3_REGION      = aws_s3_bucket.bucket.region
       S3_BUCKET      = aws_s3_bucket.bucket.bucket
-      LAMBDA_ANALYZE = aws_lambda_function.lambda_analyze.function_name
+      LAMBDA_ANALYZE = aws_lambda_function.lambda_analyze.arn
       NODE_OPTIONS = "--enable-source-maps --experimental-specifier-resolution=node"
     }
   }
@@ -137,8 +137,8 @@ data "archive_file" "lambda_analyze_zip_dir" {
 }
 
 resource "aws_lambda_function" "lambda_analyze" {
-  filename         = data.archive_file.lambda_scrape_zip_dir.output_path
-  source_code_hash = data.archive_file.lambda_scrape_zip_dir.output_base64sha256
+  filename         = data.archive_file.lambda_analyze_zip_dir.output_path
+  source_code_hash = data.archive_file.lambda_analyze_zip_dir.output_base64sha256
   function_name    = "lambda_analyze"
   handler          = "main.lambda_handler"
   runtime          = "python3.9"
