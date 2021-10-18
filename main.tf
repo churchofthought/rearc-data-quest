@@ -119,3 +119,8 @@ resource "aws_lambda_function" "lambda_scrape" {
   }
 }
 
+
+
+resource "aws_sqs_queue" "lambda_analysis_queue" {
+  name                  = "lambda-analysis-queue"
+}

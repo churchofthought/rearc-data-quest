@@ -53,7 +53,10 @@ Part 1)
 		A memory hog but the only way to fix the issue.
 
 	[TODO Improvements]
-		Unit & Integration Tests. Written more as isolated pure functions for testability
+		JSDoc Comments on all methods, parameters, and return values
+		Unit & Integration Tests (in Mocha, Tap, etc.) 
+			Code written as isolated pure functions.
+			Mock testing & Dependency injection
 		Request multiplexing, so we aren't just waiting on 1 request in isolation
 			This speed up our entire end-to-end process.
 			Promise.all is naive and dangerous, a parallelMap or parallelDo with a concurrency limit (n=10 for instance) is safer
