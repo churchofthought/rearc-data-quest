@@ -25,7 +25,7 @@ const renderAnalysis = async () => {
 export const lambdaHandler = async (
 	event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
-	const queries = JSON.stringify(event.queryStringParameters);
+	// const queries = JSON.stringify(event.queryStringParameters);
 
 	const s3ModifiedFiles = await s3.syncDirectoryToS3("https://download.bls.gov/pub/time.series/pr/", [
 		DATA_USA_S3_KEY

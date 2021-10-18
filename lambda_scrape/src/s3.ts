@@ -2,7 +2,7 @@ import { S3Client, ListObjectsV2Command, PutObjectCommand, DeleteObjectsCommand,
 import {Readable} from "stream"
 import {basename} from 'path'
 
-import { fetch } from "undici"
+import fetch from "node-fetch-commonjs"
 import { scrapeDirectoryListing } from "./scrape"
 
 export default (region: string, bucket: string) => {
@@ -118,7 +118,7 @@ export default (region: string, bucket: string) => {
 			}
 			
 			console.debug(`fetching ${url}`)
-			const response = await fetch(url, {
+			const response = await fetch(url.href, {
 				headers: {
 					...s3ETag && {'If-None-Match': s3ETag},
 					...s3LastModified && {'If-Modified-Since': s3LastModified}

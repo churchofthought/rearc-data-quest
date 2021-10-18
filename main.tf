@@ -73,6 +73,9 @@ resource "aws_iam_role_policy" "lambda_policy" {
 }
 
 resource "null_resource" "lambda_scrape_dependencies" {
+  triggers = {
+    dir_sha1 = sha1(join("", [for f in fileset("src", "*"): filesha1(f)]))
+  }
   provisioner "local-exec" {
     command = "cd lambda_scrape/src && npm run build"
   }
