@@ -117,7 +117,7 @@ resource "aws_lambda_function" "lambda_scrape" {
   handler          = "index.lambdaHandler"
   runtime          = "nodejs14.x"
   role             = aws_iam_role.lambda_role.arn
-  timeout          = 900
+  timeout          = 60
 
   environment {
     variables = {
@@ -130,24 +130,74 @@ resource "aws_lambda_function" "lambda_scrape" {
 }
 
 
+resource "null_resource" "lambda_analyze_dependencies" {
+  triggers = {
+    dir_sha1 = sha1(join("", [for f in fileset("lambda_analyze/src/", "**") : filesha1("lambda_analyze/src/${f}")]))
+  }
+}
+
+
 data "archive_file" "lambda_analyze_zip_dir" {
   type        = "zip"
   output_path = "tmp/lambda_analyze_zip_dir.zip"
-  source_dir  = "lambda_analyze"
+  source_dir  = "lambda_analyze/src"
+
+  depends_on = [
+    null_resource.lambda_analyze_dependencies
+  ]
 }
 
+resource "aws_lambda_layer_version" "jupyter_layer_1" {
+  filename   = "lambda_analyze/python_modules_1.zip"
+  layer_name = "lambda_jupyter_1"
+  source_code_hash = filebase64sha256("lambda_analyze/python_modules_1.zip")
+  compatible_runtimes = ["python3.8"]
+}
+
+resource "aws_lambda_layer_version" "jupyter_layer_2" {
+  filename   = "lambda_analyze/python_modules_2.zip"
+  layer_name = "lambda_jupyter_2"
+  source_code_hash = filebase64sha256("lambda_analyze/python_modules_2.zip")
+  compatible_runtimes = ["python3.8"]
+}
 resource "aws_lambda_function" "lambda_analyze" {
   filename         = data.archive_file.lambda_analyze_zip_dir.output_path
   source_code_hash = data.archive_file.lambda_analyze_zip_dir.output_base64sha256
   function_name    = "lambda_analyze"
   handler          = "main.lambda_handler"
-  runtime          = "python3.9"
+  runtime          = "python3.8"
   role             = aws_iam_role.lambda_role.arn
-  timeout          = 900
+  timeout          = 120
+  memory_size      = 2048
+  layers = [
+    aws_lambda_layer_version.jupyter_layer_1.arn,
+    aws_lambda_layer_version.jupyter_layer_2.arn
+  ]
   environment {
     variables = {
       S3_REGION    = aws_s3_bucket.bucket.region
       S3_BUCKET    = aws_s3_bucket.bucket.bucket
     }
   }
+}
+
+
+resource "aws_cloudwatch_event_rule" "rescrape" {
+    name = "rescrape"
+    description = "Recurrent Scrape"
+    schedule_expression = "rate(24 hours)"
+}
+
+resource "aws_cloudwatch_event_target" "check_scrape" {
+    rule = aws_cloudwatch_event_rule.rescrape.name
+    target_id = "lambda_scrape"
+    arn = aws_lambda_function.lambda_scrape.arn
+}
+
+resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_lambda_scrape" {
+    statement_id = "AllowExecutionFromCloudWatch"
+    action = "lambda:InvokeFunction"
+    function_name = aws_lambda_function.lambda_scrape.function_name
+    principal = "events.amazonaws.com"
+    source_arn = aws_cloudwatch_event_rule.rescrape.arn
 }

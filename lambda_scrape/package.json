@@ -4,7 +4,7 @@
   "description": "Do. Or do not. There is no fail.",
   "main": "index.js",
   "scripts": {
-    "build": "rm -rf dist && tsc && cp package.json dist/ && cp package-lock.json dist/ && cd dist && npm ci --production",
+    "build": "npm install && rm -rf dist && tsc && cp package.json dist/ && cp package-lock.json dist/ && cd dist && npm ci --production",
     "start": "ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

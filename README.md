@@ -1,3 +1,5 @@
+# rearc-data-quest
+
 Part 1)
 	HTTP(S) does not know the concept of a directory listing, there is no HTTP(S) method for listing files
 	Thus, if we use HTTP(S), we must scrape using regular expressions (more performant / less robust) or DOM parsing (less performant / more robust)
@@ -83,16 +85,13 @@ Part 3)
 
 Part 4)
 	Many python dependencies like Pandas are compiled for the platform specifically.
-	I wanted to render both an ipynb and HTML document every time the two files used for analysis changed.
+	I wanted to render both an executed ipynb and web-viewable HTML document every time the two files used for analysis changed.
 	I used Docker to create the AWS Python 3.9 environment so I could install all the dependencies necessary to re-execute the ipynb notebook, render it to HTML, and also interact with s3.
-	These dependencies include: papermill ipython jupyter boto3 s3fs
+	By using pip install jupyter nbconvert pandas -t /tmp/modules, along with docker cp, I was able to pull the modules into my host OS
 
+	I used lambda layers to avoid having to republish the python modules every time we want to change the main code
+	Layer size limits (250MB unpacked) meant I had to break up the dependencies into two layers.
 
-
-
-
-	
-
-
-	
-# rearc-data-quest
+	[TODO Improvements]
+		Testing & error checking
+		Automation of lambda layer creation (docker + pip + chunking into layers)
