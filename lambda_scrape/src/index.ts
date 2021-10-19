@@ -18,7 +18,7 @@ if (!S3_REGION || !S3_BUCKET || !LAMBDA_ANALYZE){
 	throw new Error("S3_REGION OR S3_BUCKET or LAMBDA_ANALYZE env missing")
 }
 const s3 = S3(S3_REGION, S3_BUCKET)
-const lambda = Lambda(LAMBDA_ANALYZE) 
+const lambda = Lambda(S3_REGION) 
 const DATA_USA_S3_KEY = "datausa.api.json"
 
 
