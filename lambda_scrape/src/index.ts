@@ -28,7 +28,9 @@ export const lambdaHandler = async (
 	// const queries = JSON.stringify(event.queryStringParameters);
 
 	const s3ModifiedFiles = await s3.syncDirectoryToS3("https://download.bls.gov/pub/time.series/pr/", [
-		DATA_USA_S3_KEY
+		DATA_USA_S3_KEY,
+		"analysis.ipynb",
+		"analysis.html"
 	])
 	const dataUSAModified = await s3.copyHTTPResourceToS3("https://datausa.io/api/data?drilldowns=Nation&measures=Population", DATA_USA_S3_KEY)
 	const rerenderAnalysis = s3ModifiedFiles.includes("pr.data.0.Current") || dataUSAModified
